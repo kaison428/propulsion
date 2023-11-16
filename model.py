@@ -24,6 +24,7 @@ from langchain.memory import ConversationBufferMemory
 from langchain.retrievers import ContextualCompressionRetriever, CohereRagRetriever
 from langchain.retrievers.document_compressors import CohereRerank
 from langchain.chains import RetrievalQA, RetrievalQAWithSourcesChain
+from langchain.chains.summarize import load_summarize_chain
 
 from unidecode import unidecode
 
@@ -57,16 +58,10 @@ def get_text_from_pdf(fileobj):
 
 # Response  ------------------------------
 def get_summary(text):
-    '''Return summary using co.summarize endpoint (use Langchain's built-in method! this is pretty bad lmao)'''
+    '''Return summary using co.summarize endpoint and a two-stage map-reduce approach'''
     
-    print('doc length', len(text))
-
-    chunk_size = len(text) / (len(text) // 95000 + 1)
-
-    print('chunk size', chunk_size)
-
     #split text recursively
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=chunk_size, chunk_overlap=0)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=50000, chunk_overlap=1000)
     splits = text_splitter.split_text(text)
 
     co = cohere.Client(os.environ["COHERE_API_KEY"]) # This is your trial API key
@@ -81,15 +76,20 @@ def get_summary(text):
             additional_command='focusing on the section summary and details',
             temperature=0,
         )
+        section_summaries.append(response)
         section_summaries.append(response.summary)
 
-    combined_section_summaries = '\n\n'.join(section_summaries)
+    combined_section_summaries = '\n\n New Section Summary \n\n'.join(section_summaries)
+
+    with open('section_summaries', 'w') as f:
+        f.write(combined_section_summaries)
+
     response = co.summarize( 
             text=combined_section_summaries,
             length='long',
             format='auto',
             model='command',
-            additional_command='focusing on client, project scope/description, project location and expected timeline',
+            additional_command='combined the section summaries with focus on client, project scope/description, project location and expected timeline',
             temperature=0,
         )
     
@@ -140,21 +140,20 @@ def get_coordinates(intersection):
 
 def chat_from_database(prompt: str, chat_history: list=[], summary: str='') -> str:
     ''' Return response based on the given input '''
-    
+
     print(chat_history)
+    print()
 
     co = cohere.Client(os.environ['COHERE_API_KEY']) # This is your trial API key
     response = co.chat( 
-        model='command',
-        temperature=0.3,
         chat_history=chat_history,
-        prompt_truncation='auto',
-        citation_quality='accurate',
-        connectors=[{"id":"weaviate-cfa-proposal-xyt464"}],
+        preamble_override='You are an engineering proposal expert with experience in the infrastructure industry',
         message=prompt,
-        documents=[]
+        prompt_truncation='OFF',
+        connectors=[{"id": "weaviate-cfa-proposal-xyt464"}],
+        return_chat_history=True
     )
 
-    print(response)
+    # print(response.chat_history)
 
     return response.text

@@ -128,8 +128,6 @@ with chat_container:
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        st.session_state.messages.append({"role": "USER", "message": prompt})
-
         with st.chat_message("assistant"):
             message_placeholder = st.empty()
 
@@ -144,4 +142,5 @@ with chat_container:
 
             message_placeholder.markdown(full_response)
 
+        st.session_state.messages.append({"role": "USER", "message": prompt})
         st.session_state.messages.append({"role": "CHATBOT", "message": full_response})
