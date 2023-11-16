@@ -140,6 +140,8 @@ def get_coordinates(intersection):
 
 def chat_from_database(prompt: str, chat_history: list=[], summary: str='') -> str:
     ''' Return response based on the given input '''
+    
+    print(chat_history)
 
     co = cohere.Client(os.environ['COHERE_API_KEY']) # This is your trial API key
     response = co.chat( 
