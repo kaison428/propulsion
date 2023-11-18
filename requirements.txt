@@ -59,7 +59,7 @@ Pillow==10.1.0
 protobuf==4.25.0
 pyarrow==14.0.1
 pycparser==2.21
-pydantic==2.4.2
+pydantic
 pydantic_core==2.10.1
 pydeck==0.8.1b0
 Pygments==2.16.1
@@ -106,4 +106,4 @@ watchdog==3.0.0
 weaviate-client==3.25.3
 yarl==1.9.2
 zipp==3.17.0
-guardrails-ai==0.2.8
+guardrails-ai
