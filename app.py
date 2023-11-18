@@ -69,8 +69,9 @@ with st.sidebar:
             else:
                 with st.spinner('Processing...'):
                     start_time = time.time()
-                    st.session_state["summary"] = summarize_data(files)
+                    st.session_state["summary"], st.session_state["title"] = summarize_data(files)
                     st.session_state["coordinates"] = get_coordinates(get_location(st.session_state["summary"]))
+                    st.session_state["SWOT"] = get_swot_analysis(st.session_state["summary"])
                     print(time.time() - start_time)
 
                 st.success('Done!')
@@ -82,17 +83,28 @@ with st.sidebar:
 # Layout of input/response containers ----------------------------------------------------------------
 context_container = st.container()
 colored_header(label='', description='', color_name='blue-30')
-map_col, summary_col = st.columns([0.4, 0.6])
+overview_tab, swot_tab = st.tabs(["Overview", "SWOT"])
 chat_container = st.container()
 
+# Tabs organization ----------------------------------------------------------------
+with overview_tab:
+    map_col, summary_col = st.columns([0.4, 0.6])
+
+with swot_tab:
+    swot_col, swot_ref_col = st.columns([0.5, 0.5])
 
 # Map Display ------------------------------------------------------------------
 with map_col:
     # center on Liberty Bell, add marker
     if st.session_state.get("coordinates"):
+
+        location = "Approximate Site Location"
+        if st.session_state["coordinates"] == [0,0]:
+            location = 'Location Failure'
+
         m = folium.Map(location=st.session_state["coordinates"], zoom_start=16)
         folium.Marker(
-            st.session_state["coordinates"], popup="Approximate Site Location", tooltip="Approximate Site Location"
+            st.session_state["coordinates"], popup=location, tooltip=location
         ).add_to(m)
 
         # call to render Folium map in Streamlit
@@ -110,7 +122,15 @@ with map_col:
 # Summarys Display ------------------------------------------------------------------
 with summary_col:
     if st.session_state.get("submit"):
+       st.subheader(st.session_state["title"])
        st.markdown(st.session_state["summary"])
+
+
+# # SWOT Analysis Display ------------------------------------------------------------------
+# with swot_col:
+#     if st.session_state.get("SWOT"):
+#        st.subheader('SWOT Analysis')
+#        st.markdown(st.session_state["SWOT"])
 
 # Chatbot UI ----------------------------------------------------------------
 with chat_container:
@@ -136,11 +156,11 @@ with chat_container:
                 chat_history = [
                     {"role": "USER", "message": f'Answer the following questions with reference to this RFP summary if required: {summary}'}
                 ] + st.session_state.messages
-                full_response = chat_from_database(prompt, chat_history=chat_history)
+                full_response, raw_response = chat_from_database(prompt, chat_history=chat_history)
             else:
-                full_response = chat_from_database(prompt, chat_history=st.session_state.messages)
+                full_response, raw_response = chat_from_database(prompt, chat_history=st.session_state.messages)
 
             message_placeholder.markdown(full_response)
 
         st.session_state.messages.append({"role": "USER", "message": prompt})
-        st.session_state.messages.append({"role": "CHATBOT", "message": full_response})
+        st.session_state.messages.append({"role": "CHATBOT", "message": raw_response})
