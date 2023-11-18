@@ -24,3 +24,6 @@ Revenue is generated through subscription plans and usage-based pricing. Our pri
 ## Next Steps
 - Incorporate additional functionalities, including timeline projection and statistical analysis.
 - Implement a more organized hierarchical data structure for more efficient data retrieval.
+
+## Other Repositories
+- Weaviate-Cohere Integration [https://github.com/kaison428/weaviate-cohere-integration]
