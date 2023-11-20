@@ -25,5 +25,6 @@ Revenue is generated through subscription plans and usage-based pricing. Our pri
 - Incorporate additional functionalities, including timeline projection and statistical analysis.
 - Implement a more organized hierarchical data structure for more efficient data retrieval.
 
-## Other Repositories
+## Others
 - [Weaviate-Cohere Integration](https://github.com/kaison428/weaviate-cohere-integration)
+- The Weaviate Database was created using the Jupyter Notebook in the database folder. A custom dataset was used as a demonstration for this protoype.
