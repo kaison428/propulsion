@@ -28,3 +28,4 @@ Revenue is generated through subscription plans and usage-based pricing. Our pri
 ## Others
 - [Weaviate-Cohere Integration](https://github.com/kaison428/weaviate-cohere-integration)
 - The Weaviate Database was created using the Jupyter Notebook in the database folder. A custom dataset was used as a demonstration for this protoype.
+- Feel free to check out the test folder for RFP examples.
